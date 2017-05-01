@@ -26,12 +26,27 @@ def execute(query, t1, t2, t3):
 	table2 = list(t2)
 	table3 = list(t3)
 	result = []
+
+	def getTable(tableID):
+		if tableID == "t1":
+			return table1
+		elif tableID == "t2":
+			return table2
+		elif tableID == "t3":
+			return table3
 	
 # when no where clauses
 	if len(query[3]) == 0:
-
+		
+		if(len(query[2]) == 2):
+			result.append(cartProd(getTable(query[2][0]),getTable(query[2][1])))
+		elif(len(query[2]) == 3):
+			tmp = []
+			tmp.append(cartProd(getTable(query[2][0]),getTable(query[2][1])))
+			result.append(cartProd(tmp[0], getTable(query[2][2])))
+			
 		# handle *
-		if(query[1][0] == "*"):
+		elif(query[1][0] == "*"):
 			# access correct tables
 			for table in query[2]:
 				result.append(tableSelect(table,table1,table2,table3))
@@ -41,14 +56,28 @@ def execute(query, t1, t2, t3):
 			result.append(tableSelectProject(tableSelect(table,table1,table2,table3),query[1]))
 
 # handling where clause
-	else:
-		for i in query[3]:
+#	else:
+	#	for i in query[3]:
 			
-		
 # 
 #	print "RESULT -----------------------"
 #	print result
 	printTable(result)
+
+def cartProd(table1, table2):
+	result = []
+	flagA   = False
+	flagB   = False
+	for rowA in table1:
+		if flagA == True:
+			tmp = copy.deepcopy(rowA)
+			for rowB in table2:
+				if flagB == True:
+					result.append(tmp + rowB)
+				flagB = True
+		flagB = False
+		flagA = True
+	return result
 
 def tableSelectProject(initTable,projects):
 	''' Change so only takes in queries and a table, then filters
